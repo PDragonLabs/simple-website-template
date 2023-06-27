@@ -1,1 +1,1636 @@
-<iframe  src="https://www.apronus.com/music/onlineguitar.htm" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel='canonical' href='https://www.apronus.com/music/onlineguitar.htm' />
+
+<title>Virtual Guitar Online | Apronus.com</title>
+<meta name="keywords" content="virtual guitar, guitar online, online guitar">
+<meta name="description" content="This virtual guitar online simulator plays the chords of a real acoustic guitar.">
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-90959-2', 'auto');
+  ga('set', 'anonymizeIp', true);
+  ga('send', 'pageview');
+</script>
+
+<script id="pubmax-script" src="https://cdn.adapex.io/hb/aaw.apns2.js" async></script>
+
+<script>
+function tag_horizontal_pubmax()
+{
+	var tag_horizontal_pubmax_desktop = "<div data-aaad='true' data-aa-adunit='/22815767462/APNS_728v_4'></div>";
+	// 970x250;970x90;728x250;728x90; native
+	// this was supposed to be corrected to max 90 height
+
+	var tag_horizontal_pubmax_mobile = "<div data-aaad='true' data-aa-adunit='/22815767462/APNS_Mob_300v_3'></div>";
+	//320x100;320x50; native
+	
+	var isdesktop = (window.innerWidth >= 600);
+	
+	return isdesktop ? tag_horizontal_pubmax_desktop : tag_horizontal_pubmax_mobile;
+}
+
+function insert_tag_horizontal(div)
+{
+	div.innerHTML = tag_horizontal_pubmax();
+}
+</script>
+
+<script src='onlineguitar-pianoapi20181203.js'></script>
+
+<script>
+g_instrument = 'Guitar';
+
+var guitarsounds = [];
+for (var i=40; i<=84; i++) guitarsounds[i] = null;
+
+function areallsoundsloaded()
+{
+ for (var i=40; i<=84; i++) if (guitarsounds[i] == null) return false;
+ return true;
+}
+
+function guitarsoundsrc(n)
+{
+ if (n<=39) n = 40;
+ var prefix = 'soft_sus_pleck_mp3/';
+ var style = 'soft_sus_pleck';
+ if (n<21 || n>109) { alert('wrong number for sound '+n); return '???.???'; }
+ var octave = Math.floor(n/12)-1;
+ var names = ['c','cs','d','ds','e','f','fs','g','gs','a','as','b','bs'];
+ var name = names[n%12];
+ return prefix + style + '_' + name + (octave-1) + '.mp3';
+}
+
+function preloadGuitarSound(context,whichsound)
+{
+ var request = new XMLHttpRequest();
+ request.open("GET", guitarsoundsrc(whichsound), true);
+ request.responseType = "arraybuffer";
+ request.onload =
+  function()
+  {
+   context.decodeAudioData
+    (
+      request.response,
+      function(buffer)
+      {
+       if (!buffer) { alert('error decoding file data: ' + url); return; }
+       guitarsounds[whichsound] = buffer;
+	   if (areallsoundsloaded()) loading.style.display = 'none';
+      },
+      function(error) { console.error('decodeAudioData error', error); }
+    );
+  }
+ request.onerror = function() { alert('BufferLoader: XHR error'); }
+ request.send();
+}
+
+// play guitar sound really
+function playpianosound(context,n,delayInSeconds)
+{
+ delayInSeconds = delayInSeconds || 0;
+ 
+ var ms = delayInSeconds*1000;
+ if (ms > 0) setTimeout( "recordnow("+n+");" , ms);
+ 
+ var source = context.createBufferSource();
+ source.buffer = guitarsounds[n];
+ source.connect(context.destination);
+ source.start(context.currentTime + delayInSeconds);
+}
+
+function preloadoctaves(a,b) { }
+
+function preloadguitarsounds()
+{
+ for (var i=40; i<=84; i++) preloadGuitarSound(audiocontext,i);
+}
+function keydown(e)
+{
+ if (e.repeat == true) return 0;
+ if (document.activeElement.nodeName == 'TEXTAREA') return;
+ if (document.activeElement.nodeName == 'INPUT')
+ {
+  if (document.activeElement.type != 'checkbox') return;
+  document.activeElement.blur();
+ }
+
+ e = e || event;
+ //document.title = e.keyCode;
+ var k = e.keyCode;
+ userkeydownup(k,'down');
+ if (k==9) return false; //tab
+ if (k==8) return false; //backspace
+ if (k==191 || k==222) return false; // / slash to prevent quickfind in firefox
+ if (k==32) { strum(); galog("Strum","strum-space"); return false; }
+ return true;
+}
+
+function keyup(e)
+{
+ if (document.activeElement.nodeName == 'TEXTAREA') return;
+ if (document.activeElement.nodeName == 'INPUT')
+ {
+  if (document.activeElement.type != 'checkbox') return;
+  document.activeElement.blur();  
+ }
+
+ e = e || event;
+ //document.title = e.keyCode;
+ var k = e.keyCode;
+ userkeydownup(k,'up');
+}
+
+
+</script>
+
+<script>
+function areallsoundsloaded()
+{
+ for (var i=44; i<=79; i+=7) if (guitarsounds[i] == null) return false;
+ return true;
+}
+
+function loadslimguitarsound(n)
+{
+ var request = new XMLHttpRequest();
+ request.open("POST", 'virtualguitar/' , true);
+ request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+ request.responseType = "arraybuffer";
+ request.onload =
+  function()
+  {
+   audiocontext.decodeAudioData
+    (
+      request.response,
+      function(buffer)
+      {
+       //if (!buffer) { alert('error decoding file data: ' + url); return; }
+       guitarsounds[n] = buffer;
+	   if (areallsoundsloaded()) loading.style.display = 'none';
+      },
+      function(error) { console.error('decodeAudioData error', error); }
+    );
+  }
+ request.onerror = function() { } // alert('BufferLoader: XHR error');
+ request.send('n='+n);
+}
+
+function preloadguitarsounds()
+{
+ loadslimguitarsound(44);
+ loadslimguitarsound(51);
+ loadslimguitarsound(58);
+ loadslimguitarsound(65);
+ loadslimguitarsound(72);
+ loadslimguitarsound(79);
+}
+
+function sourcestart(n,rate,delayInSeconds)
+{
+ if (audiocontext.state == 'suspended') audiocontext.resume();
+ var source = audiocontext.createBufferSource();
+ source.buffer = guitarsounds[n];
+ source.playbackRate.setValueAtTime(rate,0);
+ source.connect(audiocontext.destination);
+ source.start(audiocontext.currentTime + delayInSeconds);
+}
+
+function playpiano7sound(n,delayInSeconds)
+{
+ delayInSeconds = delayInSeconds || 0;
+ if (delayInSeconds > 0) setTimeout( "recordnow("+n+");" , delayInSeconds*1000);	
+  if (n <= 44) return sourcestart(44,Math.pow(2,(n-44)/12),delayInSeconds);
+  if (n >= 79) return sourcestart(79,Math.pow(2,(n-79)/12),delayInSeconds);
+  if (n%7 == 2) return sourcestart(n,1,delayInSeconds);
+  if (n%7 == 3) return sourcestart(n-1,Math.pow(2,1/12),delayInSeconds);
+  if (n%7 == 4) return sourcestart(n-2,Math.pow(2,2/12),delayInSeconds);
+  if (n%7 == 5) return sourcestart(n-3,Math.pow(2,3/12),delayInSeconds);
+  if (n%7 == 6) return sourcestart(n+3,Math.pow(2,-3/12),delayInSeconds);
+  if (n%7 == 0) return sourcestart(n+2,Math.pow(2,-2/12),delayInSeconds);
+  if (n%7 == 1) return sourcestart(n+1,Math.pow(2,-1/12),delayInSeconds);
+}
+
+function playpianosound(context,n,delayInSeconds)
+{
+ playpiano7sound(n,delayInSeconds);
+}
+</script>
+
+<style>
+.fingerspace:hover
+{
+ box-shadow: inset 2px 2px lightgray, inset -2px -2px lightgray;
+ border-radius: 50%; 
+}
+
+.stringbutton
+{
+ border: 1px solid #555555;
+ background: #eeeeee;
+}
+.stringbutton:hover
+{
+ background: white;
+}
+.stringbutton:active
+{
+ transform: translateY(3px);
+}
+
+</style>
+
+<style id='north2'>
+.north2
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='20' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 45.289855072463766%, black 50%, white 54.710144927536234%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style id='north3'>
+.north3
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='20' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 43.84057971014493%, black 50%, white 56.15942028985507%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style id='north4'>
+.north4
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='20' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 40.57971014492753%, black 50%, white 59.42028985507247%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style id='south3'>
+.south3
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='0' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 43.84057971014493%, black 50%, white 56.15942028985507%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style id='south4'>
+.south4
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='0' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 40.57971014492753%, black 50%, white 59.42028985507247%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style id='south5'>
+.south5
+{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='0' r='7' fill='lightgray' /></svg>"),
+                    linear-gradient(white 0%, white 36.95652173913044%, black 50%, white 63.04347826086956%, white 100%);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+</style>
+
+<style>
+#memorybuttons
+{
+ margin: 4px;
+ border: 1px dotted darkgray;
+ box-shadow: 0px 0px 4px 4px gray;
+}
+
+#fixedchords
+{
+ display: inline-block;
+}
+
+.fixedchord
+{
+ margin: 0;
+ padding: 0;
+ outline: none;
+ color: white;
+ font-weight: bold;
+ font-family: Arial;
+ border-radius: 0.6em;
+}
+.fixedchord:hover
+{
+ box-shadow: inset 0px 0px 66px 66px black;
+}
+
+button.keyboardchord
+{
+ background: linear-gradient(#fafafa, #dddddd);
+ height: 2em; font-family: Arial;
+ border: 1px solid darkgray; border-radius: 0.5em;
+ cursor: pointer; margin: 0; outline: none;
+}
+button.keyboardchord:hover
+{
+ box-shadow: inset 0px 0px 1em 2em #eeeeee;
+}
+</style>
+
+
+<script>
+
+function applynoselect(element)
+{
+ var aaa = document.getElementById('noselectstyle');
+ if (!aaa)
+ {
+  var style = document.createElement('style');
+  style.id = 'noselectstyle';
+  var text = '.noselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }';
+  style.appendChild(document.createTextNode(text));
+  document.head.appendChild(style);
+ } 
+ var all = element.getElementsByTagName("*");
+ for (var i=0; i<all.length; i++)
+ {
+  if (all[i].nodeName != 'SUB')
+  {
+   all[i].style.userSelect="none";
+   all[i].classList.add("noselect");
+  }
+ }
+}
+
+function plamka(y,x)
+{
+ if (y==3 && (x==3 || x==5 || x==7 || x==9 || x==15 || x==17)) return 'north3';
+ if (y==4 && (x==3 || x==5 || x==7 || x==9 || x==15 || x==17)) return 'south4';
+ if (y==2 && x==12) return 'north2';
+ if (y==3 && x==12) return 'south3';
+ if (y==4 && x==12) return 'north4';
+ if (y==5 && x==12) return 'south5';
+ return '';
+}
+
+function fretboard(n,fragment)
+{
+ var stringpad = document.createElement('div');
+ stringpad.style.position = 'relative';
+ fragment = (fragment) ? fragment : 1;
+ stringpad.style.paddingTop = 8 / fragment + '%'; // '8%';
+ var innerbox = document.createElement('div');
+ innerbox.id = 'innerbox';
+ innerbox.style.position = 'absolute';
+ innerbox.style.left = '0';
+ innerbox.style.right = '0';
+ innerbox.style.top = '0';
+ innerbox.style.bottom = '0';
+ innerbox.style.height = '100%';
+ innerbox.style.padding = '0'; 
+ for (var y=1; y<=6; y++)
+ {
+  var struna = document.createElement('div');
+  struna.style.height = 100/6 + '%';
+  for (var x=1; x<=n; x++)
+  {
+   var fing = document.createElement('div');
+   fing.style.height = '100%';
+   fing.style.display = 'inline-block';
+   fing.style.verticalAlign = 'top';
+   var a = Math.pow(2,1/12);
+   var fretwidth = (a-1)/Math.pow(a,x);
+   fing.style.width = fretwidth / fragment * 100 + '%';
+   var infing = document.createElement('div');
+   infing.style.height = '100%';
+   infing.style.borderLeft = '1px solid black';
+   infing.style.borderRight = '1px solid black';
+   infing.style.marginLeft = '1px';
+   infing.style.marginRight = '1px';
+   if (x==1) infing.style.borderLeft = '4px solid black';
+   infing.appendChild(fingerspace(y,x));
+   fing.appendChild(infing);
+   struna.appendChild(fing);
+  }
+  var rest = document.createElement('div');
+  rest.style.height = '100%';
+  rest.style.display = 'inline-block';
+  rest.style.verticalAlign = 'top';
+  var restwidth = Math.pow(Math.pow(2,1/12),-n);
+  rest.style.width =  (1 - (1-restwidth)/fragment) * 100 + '%';
+  rest.appendChild(pluckstring(y));
+  struna.appendChild(rest);
+  innerbox.appendChild(struna);
+ }
+ stringpad.appendChild(innerbox);
+ applynoselect(stringpad);
+ return stringpad;
+}
+
+function stringgradient(str)
+{
+ var A;
+ switch(str)
+ {
+  case 1 : A = 10; break;
+  case 2 : A = 13; break;
+  case 3 : A = 17; break;
+  case 4 : A = 26; break;
+  case 5 : A = 36; break;
+  case 6 : A = 46; break;
+ }
+ var x = 300/18*A/46;
+ return 'linear-gradient(white 0%, white '+(50-x)+'%, black 50%, white '+(50+x)+'%, white 100%)'; 
+}
+
+function fingerspace(string,fret)
+{
+ var div = document.createElement('div');
+ div.id = 'fingerspace'+string+fret;
+ div.className = 'fingerspace';
+ //div.style.background = 'linear-gradient(white 0%, white 40%, black 50%, white 60%, white 100%)';
+ 
+ if (plamka(string,fret)) { div.classList.add(plamka(string,fret)); }
+ else div.style.background = stringgradient(string);
+
+ div.style.cursor = 'pointer'; 
+ div.style.textAlign = 'center';
+ div.style.height = '100%';
+ div.style.textAlign = 'center';
+ div.innerHTML = '&nbsp;';
+ div.setAttribute('onmousedown','fingerdown('+string+','+fret+');');
+ div.setAttribute('onmouseup','fingerup('+string+','+fret+');');
+ div.setAttribute('onmouseleave','fingerup('+string+','+fret+');');
+ div.style.userSelect = 'none';
+ return div;
+}
+
+function pluckstring(string)
+{
+ var aa = document.createElement('div');
+ aa.style.background = stringgradient(string);
+ aa.style.height = '100%';
+ aa.style.textAlign = 'center';
+ var button = document.createElement('button');
+ button.id = 'stringbutton'+string;
+ button.className = 'stringbutton';
+ button.style.cursor = 'pointer';
+ //button.style.height = '100%';
+ button.style.width = stringbuttonpixelwidth()+'px';
+ button.style.overflow = 'hidden';
+ button.style.outline = 'none';
+ button.style.textAlign = 'left';
+ button.style.padding = '0';
+ button.style.paddingLeft = '0.5em';
+ button.innerHTML = string + ' - ' + soundname(whichkey(string),true);
+ button.setAttribute('onmousedown','activatepianokey(whichkey('+string+'));galog("string-click","string-click");');
+ button.setAttribute('onmouseup','releasepianokey(whichkey('+string+'));');
+ aa.appendChild(button);
+ aa.setAttribute('onmouseenter','if(nonmuted('+string+')){activatepianokey(whichkey('+string+'));gapluck();}');
+ aa.setAttribute('onmouseleave','releasepianokey(whichkey('+string+'));');
+ aa.style.userSelect = 'none';
+ aa.appendChild(mutebox(string));
+ return aa;
+}
+
+var ilepluck = 0; function gapluck() { if (threshold(++ilepluck)) galog('Pluck','pluck-'+ilepluck); }
+
+function whichkey(string,fret)
+{
+ var n;
+ switch(string)
+ {
+  case 1: n = 64; break; // E4
+  case 2: n = 59; break; // B3
+  case 3: n = 55; break; // G3
+  case 4: n = 50; break; // D3
+  case 5: n = 45; break; // A2
+  case 6: n = 40; break; // E2
+ }
+ if (fret) return n + fret;
+ fret = 0;
+ for (x=1; x<=30; x++)
+ {
+  var fing = document.getElementById('fingerspace'+string+x);
+  if (fing) if (fing.innerHTML != '&nbsp;') fret = x;
+ }
+ return n + fret;
+}
+
+function svgcircle()
+{
+ return '<svg height="100%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="5" fill="black" fill-opacity="1" /></svg>';
+}
+
+var ilefingerdown = 0;
+
+function fingerdown(string,fret)
+{
+ for (var x=1; x<=30; x++)
+ {
+  if (x != fret)
+  {
+   var fing = document.getElementById('fingerspace'+string+x);
+   if (fing) fing.innerHTML = '&nbsp;';
+  } 
+ }  
+ var fing = document.getElementById('fingerspace'+string+fret);
+ if (fing.innerHTML == '&nbsp;')
+ {
+  fing.innerHTML = svgcircle();
+ }
+ else fing.innerHTML = '&nbsp;';
+ activatepianokey(whichkey(string,fret));
+ updatestringbuttons();
+ updatepiano();
+ 
+ if (threshold(++ilefingerdown)) galog("Fingerdown", "fingerdown-"+ilefingerdown);
+}
+
+function fingerup(string,fret)
+{
+ releasepianokey(whichkey(string,fret));
+}
+
+function setstring(string,fret)
+{
+ for (var x=1; x<=30; x++)
+ {
+  var fing = document.getElementById('fingerspace'+string+x);
+  if (fing) fing.innerHTML = '&nbsp;';
+ }
+ if (fret > 0)
+ { 
+  var fing = document.getElementById('fingerspace'+string+fret); 
+  fing.innerHTML = svgcircle();
+ }
+ updatestringbuttons();
+ updatepiano();
+}
+
+function setstrings(arr)
+{
+ for (var i=0; i<=5; i++) setstring(i+1,arr[i]);
+ var a = arr.concat([true,true,true,true,true,true]);
+ setmuteboxes([a[6],a[7],a[8],a[9],a[10],a[11]]);
+}
+
+function playguitarsound(n,ms)
+{
+ if (audiocontext.state == 'suspended') audiocontext.resume();
+ ms = ms || 0;
+ playpianosound(audiocontext,n,ms/1000);
+//  recordnow(n);
+ if (threshold(++ileplayaudio)) galog('Playaudio', 'playaudio-'+ileplayaudio);
+}
+
+var struminterval = 30;
+var strumdelay = 200;
+
+function downstrum(sounds)
+{
+ if (!sounds) sounds = [whichkey(6),whichkey(5),whichkey(4),whichkey(3),whichkey(2),whichkey(1)];
+ for (var i=0; i<sounds.length; i++) if (nonmuted(i+1))
+ {
+  playguitarsound(sounds[i],(i)*struminterval);
+  setTimeout( 'downpresspianokey('+sounds[i]+')' , (i)*struminterval );
+  setTimeout(   'releasepianokey('+sounds[i]+')' , (i)*struminterval + strumdelay );
+ }
+}
+
+function upstrum()
+{
+ for (var y=1; y<=6; y++) if (nonmuted(y))
+ {
+  playguitarsound(whichkey(y), (y-1)*30);
+  setTimeout( 'downpresspianokey(whichkey('+y+'))' , (y-1)*struminterval );
+  setTimeout( 'releasepianokey(whichkey('+y+'))' , (y-1)*struminterval + strumdelay );
+ }
+}
+
+var globalstrum = true;
+function strum()
+{
+ if (globalstrum) downstrum(); else upstrum();
+ globalstrum = !globalstrum; 
+}
+
+function fretnumbersrow(n,fragment)
+{
+ fragment = (fragment) ? fragment : 1;
+ var nums = document.createElement('div');
+ for (var x=1; x<=n; x++)
+ {
+   var num = document.createElement('div');
+   num.style.display = 'inline-block';
+   num.style.verticalAlign = 'top';
+   num.style.textAlign = 'center';
+   num.style.color = 'gray';
+   num.style.fontSize = 'small';
+   if (x==3 || x==5 || x==7 || x==9 || x==12 || x==15 || x==17) { num.style.fontWeight = 'bold'; num.style.color = 'black'; }
+   var a = Math.pow(2,1/12);
+   var fretwidth = (a-1)/Math.pow(a,x);
+   num.style.width = fretwidth / fragment * 100 + '%';
+   num.innerHTML = x;
+   nums.appendChild(num);
+ }
+ applynoselect(nums);
+ return nums;
+}
+
+function updatepiano()
+{
+ for (var n=36; n<=84; n++)
+  document.getElementById('klawisz'+n).style.background = (isblackkey(n)) ? 'linear-gradient(#111, #444)' :  'linear-gradient(lightgray,white)';
+ for (var y=1; y<=6; y++)
+  document.getElementById('klawisz'+whichkey(y)).style.background = 'orange';
+}
+
+function updatestringbuttons()
+{
+ for (var y=1; y<=6; y++)
+ {
+  var button = document.getElementById('stringbutton'+y);
+  button.innerHTML = y + ' - ' + soundname(whichkey(y),true);
+ }
+}
+
+function horifretboard(n,fragment)
+{
+ var div = document.createElement('div');
+ div.appendChild(fretboard(n,fragment));
+ div.appendChild(fretnumbersrow(n,fragment));
+ div.setAttribute('onmouseleave','if (rechord.checked==false) releaseallkeys();');
+ return div;
+}
+
+function invertstrings()
+{
+ var s4 = south4.innerHTML;
+ s4 = s4.split('\n');
+ s4[1] = '.north3';
+ var n3 = north3.innerHTML;
+ n3 = n3.split('\n');
+ n3[1] = '.south4';
+ var a = s4[4]; s4[4] = n3[4]; n3[4] = a; 
+ s4 = s4.join('\n');
+ n3 = n3.join('\n'); 
+ south4.innerHTML = n3;
+ north3.innerHTML = s4;
+ 
+ var s4 = south5.innerHTML;
+ s4 = s4.split('\n');
+ s4[1] = '.north2';
+ var n3 = north2.innerHTML;
+ n3 = n3.split('\n');
+ n3[1] = '.south5';
+ var a = s4[4]; s4[4] = n3[4]; n3[4] = a; 
+ s4 = s4.join('\n');
+ n3 = n3.join('\n'); 
+ south5.innerHTML = n3;
+ north2.innerHTML = s4;
+ 
+ var s4 = south3.innerHTML;
+ s4 = s4.split('\n');
+ s4[1] = '.north4';
+ var n3 = north4.innerHTML;
+ n3 = n3.split('\n');
+ n3[1] = '.south3';
+ var a = s4[4]; s4[4] = n3[4]; n3[4] = a; 
+ s4 = s4.join('\n');
+ n3 = n3.join('\n'); 
+ south3.innerHTML = n3;
+ north4.innerHTML = s4;
+ 
+ var struny = innerbox.childNodes;
+ var struna1 = struny[0].cloneNode(true);
+ var struna2 = struny[1].cloneNode(true);
+ var struna3 = struny[2].cloneNode(true);
+ var struna4 = struny[3].cloneNode(true);
+ var struna5 = struny[4].cloneNode(true);
+ var struna6 = struny[5].cloneNode(true);
+ innerbox.innerHTML = '';
+ innerbox.appendChild(struna6);
+ innerbox.appendChild(struna5);
+ innerbox.appendChild(struna4);
+ innerbox.appendChild(struna3);
+ innerbox.appendChild(struna2);
+ innerbox.appendChild(struna1);
+ 
+ galog('invert', 'invert');
+}
+
+function pianocontrols()
+{
+ var a = 2, b = 5;
+ var se = document.createElement('select');
+ se.id = 'octaveselector';
+ se.style.display = 'none';
+ se.style.margin = '0.5em';
+ for (var i=1; i<=6; i++)
+ {
+  var opt = document.createElement('option');
+  opt.text = 'computer keyboard plays from ' + 'C'+i+' to C'+(i+2);
+  se.add(opt);
+ }
+ se.selectedIndex = (a<=3 && b>=4) ? 2 : a-1;
+
+ var melo = document.createElement('select');
+ melo.id = 'melochords';
+ melo.style.display = 'none';
+ melo.style.margin = '0.5em';
+ var opt = document.createElement('option');
+ opt.text = 'single notes';
+ melo.add(opt);
+ opt = document.createElement('option');
+ opt.text = 'major chords';
+ melo.add(opt);
+ opt = document.createElement('option');
+ opt.text = 'minor chords';
+ melo.add(opt);
+ 
+ var chordpanel = document.createElement('fieldset');
+ //chordpanel.setAttribute('onclick','rechord.checked = !rechord.checked; rechordonchange();');
+ chordpanel.style.display = 'inline-block';
+ chordpanel.style.border = 'none';
+ chordpanel.style.margin = '0.5em';
+ chordpanel.style.padding = '0';
+ var rechord = document.createElement('input');
+ rechord.type = 'checkbox';
+ rechord.id = 'rechord';
+ rechord.setAttribute('onchange','rechordonchange();');
+ chordpanel.appendChild(rechord);
+ var span = document.createElement('button');
+ span.id = 'przyciskCHORD';
+ span.innerHTML = 'keyboard chord';
+ span.setAttribute('onclick','rechord.checked = !rechord.checked; rechordonchange();');
+ chordpanel.appendChild(span);
+ 
+ //var save = document.createElement('button');
+ //save.className = 'przycisk';
+ //save.innerHTML = 'keep chord';
+ //save.setAttribute('onclick','savechwyt()');
+
+ var pp = document.createElement('div');
+ pp.style.display = 'inline-block';
+ pp.appendChild(se);
+ pp.appendChild(melo);
+ //pp.appendChild(save);
+ pp.appendChild(chordpanel);
+ pp.appendChild(recordpanel());
+ pp.appendChild(savechordsform());
+ pp.appendChild(loadchordsbutton());
+ 
+ applynoselect(pp);
+ return pp;
+}
+
+function guitarpianokeyboard()
+{
+ var a = 2, b = 5;
+ document.head.appendChild(buttonpianostyle());
+ document.body.onkeydown = keydown;
+ document.body.onkeyup = keyup;
+ var div = document.createElement('div');
+ div.id = 'pianokeyboardpanel';
+
+ var recordedsounds = document.createElement('textarea');
+ recordedsounds.id = 'recordedsounds';
+ recordedsounds.style.display = 'none';
+
+ var spot = document.createElement('div');
+ spot.id = 'keyboardspot';
+ spot.style.clear = 'both';
+ spot.appendChild(klawiatura(a,b));
+  
+ div.appendChild(spot);
+ div.appendChild(recordedsounds); 
+  
+ applynoselect(div);
+ return div;
+} 
+
+
+
+
+function whichfret(string)
+{
+ var fret = 0;
+ for (x=1; x<=30; x++)
+ {
+  var fing = document.getElementById('fingerspace'+string+x);
+  if (fing) if (fing.innerHTML != '&nbsp;') fret = x;
+ }
+ return fret;
+}
+
+function presschwytbutton(id)
+{
+ var button = document.getElementById(id+'button');
+ button.style.transform = "translateY(4px)";
+}
+
+function unpresschwytbutton(id)
+{
+ var button = document.getElementById(id+'button');
+ button.style.transform = "none";
+}
+
+function playchwytbutton(id,chwyt,nazwa)
+{
+ var frets = [whichfret(1),whichfret(2),whichfret(3),whichfret(4),whichfret(5),whichfret(6)];
+ var muteboxes = [nonmuted(1),nonmuted(2),nonmuted(3),nonmuted(4),nonmuted(5),nonmuted(6)];
+ var arr = (chwyt) ? chwyt : frets.concat(muteboxes);
+ var onclick = 'setstrings(['+arr+']);if (buttons_should_strum()) downstrum();';
+ onclick += 'presschwytbutton("'+id+'");';
+ onclick += id+'button.focus();';
+ onclick += (chwyt) ? 'galog("Fixedchord","fixedchord-click");' : 'galog("Keepchord","keepchord-click");';
+ var release = 'unpresschwytbutton("'+id+'");';
+ var name = ''; for (var i=0; i<=5; i++) name += soundname(whichkey(i+1,arr[i]),true);
+ name = (nazwa) ? nazwa : name;
+ var button = document.createElement('button');
+ button.id = id + 'button';
+ button.className = (nazwa) ? 'fixedchord' : 'chord';
+ if (chwyt)
+ {
+  button.style.width = '3em';
+  button.style.height = '3em';
+  if (nazwa == 'Dm') button.style.width = '4.5em';
+  if (nazwa == 'F') button.style.width = '5em';
+  button.style.cursor = 'pointer';
+ }
+
+ button.innerHTML = name;
+ button.setAttribute('onmousedown',onclick);
+ button.setAttribute('onmouseup',release);
+ button.setAttribute('onmouseleave',release);
+ button.style.userSelect = "none";
+ button.classList.add("noselect");
+ return button;
+}
+
+function chwytbutton(chwyt,nazwa,keycode,kb)
+{
+ var id = 'b'+Math.floor(Math.random()*100000)+Math.floor(Math.random()*100000);
+ if (nazwa) id += 'f'; // fixed chord button
+ var button = (kb) ? keyboardchordbutton(id) : playchwytbutton(id,chwyt,nazwa);
+ if (button == null) return null;
+
+ var edit = settingsicon();
+ edit.id = id+'settings';
+ edit.style.display = (nazwa) ? 'none' : 'block';
+ edit.style.cursor = 'pointer';
+ edit.setAttribute('onclick','document.getElementById("'+id+'editor").style.display="inline-block";');
+ edit.setAttribute('draggable','false');
+  
+ var editor = document.createElement('div');
+ editor.id = id+'editor';
+ editor.style.display = 'none';
+ editor.style.position = 'absolute';
+ editor.style.zIndex = '10';
+ editor.style.width = '12em';
+ editor.style.border = 'thick groove lightgray';
+ editor.style.borderRadius = '0.5em';
+ editor.style.padding = '0.4em';
+ editor.style.background = '#f7f7f7';
+ editor.setAttribute('onmouseleave','document.getElementById("'+id+'editor").style.display="none";');
+
+ //var ok = document.createElement('button');
+ //ok.style.width = '6em';
+ //ok.innerHTML = 'OK';
+ //ok.setAttribute('onclick','document.getElementById("'+id+'editor").style.display="none";');
+ 
+ var delet = document.createElement('button');
+ delet.style.marginLeft = '1em';
+ delet.innerHTML = 'delete';
+ delet.setAttribute('onclick','deletebutton("'+id+'");');
+ 
+ editor.appendChild(renamebutton(id));
+ editor.innerHTML += 'key:';
+ var ks = keysensor(id);
+ if (keycode)
+ {
+  ks.name = 'a'+keycode;
+  ks.value = keyCodes[keycode].toUpperCase();
+ }
+ editor.appendChild(ks);
+ editor.appendChild(delet);
+ 
+ var buttonedit = document.createElement('fieldset');
+ buttonedit.id = id;
+ buttonedit.style.display = 'inline-block';
+ buttonedit.style.border = 'none';
+ buttonedit.style.margin = '0';
+ buttonedit.style.padding = '0';
+ buttonedit.appendChild(button);
+ buttonedit.appendChild(editor);
+ buttonedit.appendChild(edit);
+ 
+ var buttonedit = document.createElement('table');
+ buttonedit.id = id;
+ buttonedit.style.borderCollapse = 'collapse';
+ buttonedit.style.display = 'inline-block';
+ buttonedit.style.margin = (nazwa) ? '0' : '0.5em';
+ var tr = document.createElement('tr');
+ var td = document.createElement('td');
+ td.style.padding = '0';
+ td.appendChild(button);
+ tr.appendChild(td);
+ td = document.createElement('td');
+ td.style.padding = '0';
+ td.appendChild(editor);
+ td.appendChild(edit);
+ tr.appendChild(td);
+ buttonedit.appendChild(tr);
+ 
+ if (document.getElementById('savebutton')) savebutton.disabled = false;
+
+ var dragdiv = document.createElement('div');
+ dragdiv.id = id + 'dragdiv';
+ dragdiv.style.display = 'inline-block';
+ dragdiv.appendChild(buttonedit);
+ dragdiv.setAttribute('draggable','true');
+ dragdiv.setAttribute('ondragstart',"drag(event)");
+ 
+ return dragdiv; 
+}
+
+
+function savechwyt()
+{
+ if (memorybuttons.innerHTML.charAt(0)=='t') memorybuttons.innerHTML = '';
+ memorybuttons.appendChild(chwytbutton());
+ flashmemorybuttons();
+ galog('Keepchord','keepchord-created');
+}
+
+function strumallpressedkeys()
+{
+ var sounds = [];
+ for (var n=21; n<=109; n++)
+ {
+  var key = document.getElementById('klawisz'+n);
+  if (key && key.style.transform == 'translateY(6px)') sounds.push(n);
+ }
+ if (sounds.length == 0) return;
+ releaseallkeys();
+ for (var i=0; i<sounds.length; i++)
+  setTimeout( 'activatepianokey('+sounds[i]+')' , (i)*struminterval );
+}
+
+function presspianokey(n)
+{
+ if (document.getElementById('rechord').checked)
+ {
+  var key = document.getElementById('klawisz'+n);
+  key.style.transform = (key.style.transform == 'none') ? 'translateY(6px)' : 'none';  
+  strumallpressedkeys();
+  return;
+ }
+ activatepianokey(n);
+}
+
+function rechordonchange()
+{
+ var rechord = document.getElementById('rechord');
+ przyciskCHORD.style.transform = (rechord.checked) ? 'translateY(5px)' : 'none';
+ if (rechord.checked == false)
+ {
+  var button = chwytbutton(null,null,null,true);
+  if (memorybuttons.innerHTML.charAt(0)=='t') memorybuttons.innerHTML = '';
+  if (button) 
+  {
+   memorybuttons.appendChild(button);
+   flashmemorybuttons();
+   galog('Keyboardchord','keyboardchord-created');
+  }
+  releaseallkeys();
+ }
+}
+
+function keyboardchordbutton(id)
+{ 
+ var sounds = [];
+ for (var n=21; n<=109; n++)
+ {
+  var key = document.getElementById('klawisz'+n);
+  if (key && key.style.transform == 'translateY(6px)') sounds.push(n);
+ }
+ if (sounds.length == 0) return null;
+ var onmousedown = 'downstrum(['+sounds+']);';
+ onmousedown += 'presschwytbutton("'+id+'");';
+ onmousedown += id+'button.focus();';
+ onmousedown += "galog('Keyboardchord','keyboardchord-click');";
+ var release = 'unpresschwytbutton("'+id+'");';
+ var name = ''; for (var i=0; i<sounds.length; i++) name += soundname(sounds[i],true);
+ var button = document.createElement('button');
+ button.id = id + 'button';
+ button.className = 'keyboardchord';
+ //button.style.fontSize = '100%';
+ button.innerHTML = name;
+ button.setAttribute('onmousedown',onmousedown);
+ button.setAttribute('onmouseup',release);
+ button.setAttribute('onmouseleave',release);
+ button.style.userSelect = "none";
+ button.classList.add("noselect");
+ return button;
+}
+
+
+function chwyt(x)
+{
+ switch(x)
+ {
+  case 'C' : return [0,1,0,2,3,0];
+  case 'F' : return [1,1,2,3,3,1];
+  case 'G' : return [3,0,0,0,2,3];
+  case 'Am' : return [0,1,2,2,0,0];
+  case 'Em' : return [0,0,0,2,2,0];
+  case 'Dm' : return [5,6,7,7,5,5];
+  case 'C7' : return [3,5,3,5,3,0];
+  case 'F7' : return [1,1,2,1,3,1];
+  case 'G7' : return [1,0,0,0,2,3];
+
+  case 'D' : return [5,7,7,7,5,5];
+  case 'D7' : return [5,7,5,7,5,5];
+  case 'E' : return [0,0,1,2,2,0];
+  case 'E7' : return [0,3,1,0,2,0];
+  case 'A' : return [0,2,2,2,0,0];
+  case 'A7' : return [0,2,0,2,0,0];
+  case 'Bm' : return [2,3,4,4,2,2];
+  case 'C#m' : return [4,5,6,6,4,4];
+  case 'F#m' : return [2,2,2,4,4,2];
+  
+  case 'B' : return [2,4,4,4,2,2];
+  case 'B7' : return [7,7,8,7,9,7];
+  case 'C#' : return [1,2,1,3,4,1];
+  case 'C#7' : return [4,6,4,6,4,4];
+  case 'F#' : return [2,2,3,4,4,2];
+  case 'F#7' : return [2,5,3,2,4,2];
+  case 'G#m' : return [4,4,4,6,6,4];
+  case 'A#m' : return [1,2,3,3,1,1];
+  case 'D#m' : return [6,7,8,8,6,6];
+  
+  case 'G#' : return [4,4,5,6,6,4];
+  case 'G#7' : return [4,7,5,4,6,4];
+  case 'A#' : return [1,3,3,3,1,1];
+  case 'A#7' : return [1,3,1,3,1,1];
+  case 'D#' : return [6,8,8,8,6,6];
+  case 'D#7' : return [6,8,6,8,6,6];
+  case 'Fm' : return [1,1,1,3,3,1];
+  case 'Gm' : return [3,3,3,5,5,3];
+  case 'Cm' : return [3,4,5,5,3,3];
+  
+ }
+}
+
+function defaultchwyts()
+{
+ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+ 
+ var F7 = (chwytbutton(chwyt('F7'),'F<sup>7</sup>',192)); // dominant seventh
+ var G7 = (chwytbutton(chwyt('G7'),'G<sup>7</sup>',49)); // dominant seventh
+ var C7 = (chwytbutton(chwyt('C7'),'C<sup>7</sup>',50)); // dominant seventh
+ var Dm = (chwytbutton(chwyt('Dm'),'Dm',9));
+ var Em = (chwytbutton(chwyt('Em'),'Em',81));
+ var Am = (chwytbutton(chwyt('Am'),'Am',87));
+ var F = (chwytbutton(chwyt('F'),'F',20));
+ var G = (chwytbutton(chwyt('G'),'G',65));
+ var C = (chwytbutton(chwyt('C'),'C',83));
+ 
+ var D7 = (chwytbutton(chwyt('D7'),'D<sup>7</sup>',51));
+ var E7 = (chwytbutton(chwyt('E7'),'E<sup>7</sup>',52));
+ var A7 = (chwytbutton(chwyt('A7'),'A<sup>7</sup>',53));
+ var Bm =(chwytbutton(chwyt('Bm'),'Bm',69));
+ var Csm = (chwytbutton(chwyt('C#m'),'C#m',82));
+ var Fsm = (chwytbutton(chwyt('F#m'),'F#m',84));
+ var D = (chwytbutton(chwyt('D'),'D',68));
+ var E = (chwytbutton(chwyt('E'),'E',70));
+ var A = (chwytbutton(chwyt('A'),'A',71));
+ 
+ var B7 = (chwytbutton(chwyt('B7'),'B<sup>7</sup>',54));
+ var Cs7 = (chwytbutton(chwyt('C#7'),'C#<sup>7</sup>',55));
+ var Fs7 = (chwytbutton(chwyt('F#7'),'F#<sup>7</sup>',56));
+ var Gsm = (chwytbutton(chwyt('G#m'),'G#m',89));
+ var Asm = (chwytbutton(chwyt('A#m'),'A#m',85));
+ var Dsm = (chwytbutton(chwyt('D#m'),'D#m',73));
+ var B = (chwytbutton(chwyt('B'),'B',72));
+ var Cs = (chwytbutton(chwyt('C#'),'C#',74));
+ var Fs = (chwytbutton(chwyt('F#'),'F#',75));
+
+ var Gs7 = (chwytbutton(chwyt('G#7'),'G#<sup>7</sup>',57));
+ var As7 = (chwytbutton(chwyt('A#7'),'A#<sup>7</sup>',48));
+ var Ds7 = (chwytbutton(chwyt('D#7'),'D#<sup>7</sup>',isFirefox ? 173 : 189));
+ var Fm = (chwytbutton(chwyt('Fm'),'Fm',79));
+ var Gm = (chwytbutton(chwyt('Gm'),'Gm',80));
+ var Cm = (chwytbutton(chwyt('Cm'),'Cm',219));
+ var Gs = (chwytbutton(chwyt('G#'),'G#',76));
+ var As = (chwytbutton(chwyt('A#'),'A#',isFirefox ? 59 : 186));
+ var Ds = (chwytbutton(chwyt('D#'),'D#',222));
+ 
+ var row1 = [F7,G7,C7,D7,E7,A7,B7,Cs7,Fs7,Gs7,As7,Ds7];
+ var row2 = [Dm,Em,Am,Bm,Csm,Fsm,Gsm,Asm,Dsm,Fm,Gm,Cm];
+ var row3 = [F,G,C,D,E,A,B,Cs,Fs,Gs,As,Ds]; 
+
+ var fixedchords = document.createElement('div');
+ fixedchords.id = 'fixedchords';
+
+ for (var i=0; i<12; i++) fixedchords.appendChild(row1[i]);
+ fixedchords.appendChild(document.createElement('br'));
+ for (var i=0; i<12; i++) fixedchords.appendChild(row2[i]);
+ fixedchords.appendChild(document.createElement('br'));
+ for (var i=0; i<12; i++) fixedchords.appendChild(row3[i]);
+
+ var buttons = fixedchords.getElementsByTagName("button");
+ var counter = 0;
+ for (var i=0; i<buttons.length; i++)
+ {
+  var button = buttons[i];
+  if (button.innerHTML != 'rename' && button.innerHTML != 'delete')
+  {
+   button.style.background = (counter % 6 >= 3) ? '#777777' : '#555555';
+   counter++;
+  }
+ }
+ applynoselect(fixedchords);
+ return fixedchords;
+}
+
+
+function clonedragdiv(x)
+{
+ var clone = x.cloneNode(true);
+ var oldid = clone.id.substr(0,clone.id.length-7);
+ var newid = 'bb' + (new Date()).getTime();
+ clone.id = newid + 'dragdiv';
+ var rex = eval('/'+oldid+'/g');
+ clone.innerHTML = (clone.innerHTML).replace(rex,newid);
+ return clone; 
+}
+
+function allowDrop(ev) { ev.preventDefault(); }
+function drag(ev)
+{
+ ev.dataTransfer.setData("text", ev.target.id);
+}
+function drop(ev)
+{
+ ev.preventDefault();
+ var data = ev.dataTransfer.getData("text");
+ var co = document.getElementById(data);
+    
+ var viewportOffset = memorybuttons.getBoundingClientRect();
+ var top = viewportOffset.top;
+ var left = viewportOffset.left;
+ var width = co.clientWidth;
+ var height = co.clientHeight;
+ 
+ if (co.id.indexOf('f')>0)
+ {
+  var clone = clonedragdiv(co);
+  clone.style.position = 'absolute';
+  clone.style.left = ev.clientX - width/2 - left + 'px';
+  clone.style.top = ev.clientY - height/2 - top + 'px';
+  if (memorybuttons.innerHTML.charAt(0)=='t') memorybuttons.innerHTML = '';
+  memorybuttons.appendChild(clone);
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'button').style.width = 'initial';
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'button').className = 'chord';
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'button').style.background = 'linear-gradient(#fafafa, #dddddd)';
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'button').style.height = '2em';
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'keysensor').name = '';
+  document.getElementById(clone.id.substr(0,clone.id.length-7)+'settings').style.display = 'block';
+  unpresschwytbutton(clone.id.substr(0,clone.id.length-7));
+  savebutton.disabled = false;
+  galog('Dragdrop','dragdrop-fixed');
+ }
+ else
+ {
+  co.style.position = 'absolute';
+  co.style.left = ev.clientX - width/2 - left + 'px';
+  co.style.top = ev.clientY - height/2 - top + 'px';
+  galog('Dragdrop','dragdrop-user');
+ }
+    
+ if (co.id.indexOf('c')>0) // chord button
+ {
+  var a = document.getElementById(co.id+'button');
+  triggerbutton(a,'mouseup');
+ }
+}
+
+function strumbutton()
+{
+ var strum = document.createElement('button');
+ strum.id = 'strbut'; 
+ strum.innerHTML = 'STRUM';
+ strum.setAttribute('onclick','strum();galog("Strum","strum-button-click");');
+ return strum;
+}
+
+function invertbutton()
+{
+ var invert = document.createElement('button');
+ invert.innerHTML = 'invert strings';
+ invert.setAttribute('onclick','invertstrings()');
+ return invert;
+}
+
+function keepchord()
+{
+ var save = document.createElement('button');
+ save.innerHTML = 'keep chord';
+ save.setAttribute('onclick','savechwyt()');
+ return save;
+}
+
+function memorybuttonsdiv()
+{
+ var memorybuttons = document.createElement('div');
+ memorybuttons.id = 'memorybuttons';
+ memorybuttons.style.position = 'relative';
+ memorybuttons.style.resize = 'both';
+ memorybuttons.style.overflow = 'auto';
+ memorybuttons.style.minHeight = '8em';
+ //memorybuttons.style.minWidth = '25em';
+ memorybuttons.style.height = '100%';
+ memorybuttons.innerHTML = 'tick checkboxes on and off to create chord buttons and playback buttons here';
+ memorybuttons.setAttribute('ondrop',"drop(event)");
+ memorybuttons.setAttribute('ondragover',"allowDrop(event)");
+ return memorybuttons;
+}
+
+function flashmemorybuttons()
+{
+ memorybuttons.style.transform = 'translateY(6px)';
+ setTimeout("memorybuttons.style.transform = 'none';",300);
+}
+
+function gajkeys()
+{
+ for (var n=40; n<=84; n++)
+ {
+  var key = document.getElementById('klawisz'+n);
+  var onmouseup = key.getAttribute('onmouseup');
+  onmouseup += 'galog("pianokey","pianokey");';
+  key.setAttribute('onmouseup',onmouseup);
+ }
+}
+
+
+function mobilechwyts()
+{
+ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+ 
+ var F7 = (chwytbutton(chwyt('F7'),'F<sup>7</sup>',192)); // dominant seventh
+ var G7 = (chwytbutton(chwyt('G7'),'G<sup>7</sup>',49)); // dominant seventh
+ var C7 = (chwytbutton(chwyt('C7'),'C<sup>7</sup>',50)); // dominant seventh
+ var Dm = (chwytbutton(chwyt('Dm'),'Dm',9));
+ var Em = (chwytbutton(chwyt('Em'),'Em',81));
+ var Am = (chwytbutton(chwyt('Am'),'Am',87));
+ var F = (chwytbutton(chwyt('F'),'F',20));
+ var G = (chwytbutton(chwyt('G'),'G',65));
+ var C = (chwytbutton(chwyt('C'),'C',83));
+ 
+ var D7 = (chwytbutton(chwyt('D7'),'D<sup>7</sup>',51));
+ var E7 = (chwytbutton(chwyt('E7'),'E<sup>7</sup>',52));
+ var A7 = (chwytbutton(chwyt('A7'),'A<sup>7</sup>',53));
+ var Bm =(chwytbutton(chwyt('Bm'),'Bm',69));
+ var Csm = (chwytbutton(chwyt('C#m'),'C#m',82));
+ var Fsm = (chwytbutton(chwyt('F#m'),'F#m',84));
+ var D = (chwytbutton(chwyt('D'),'D',68));
+ var E = (chwytbutton(chwyt('E'),'E',70));
+ var A = (chwytbutton(chwyt('A'),'A',71));
+ 
+ var B7 = (chwytbutton(chwyt('B7'),'B<sup>7</sup>',54));
+ var Cs7 = (chwytbutton(chwyt('C#7'),'C#<sup>7</sup>',55));
+ var Fs7 = (chwytbutton(chwyt('F#7'),'F#<sup>7</sup>',56));
+ var Gsm = (chwytbutton(chwyt('G#m'),'G#m',89));
+ var Asm = (chwytbutton(chwyt('A#m'),'A#m',85));
+ var Dsm = (chwytbutton(chwyt('D#m'),'D#m',73));
+ var B = (chwytbutton(chwyt('B'),'B',72));
+ var Cs = (chwytbutton(chwyt('C#'),'C#',74));
+ var Fs = (chwytbutton(chwyt('F#'),'F#',75));
+
+ var Gs7 = (chwytbutton(chwyt('G#7'),'G#<sup>7</sup>',57));
+ var As7 = (chwytbutton(chwyt('A#7'),'A#<sup>7</sup>',48));
+ var Ds7 = (chwytbutton(chwyt('D#7'),'D#<sup>7</sup>',isFirefox ? 173 : 189));
+ var Fm = (chwytbutton(chwyt('Fm'),'Fm',79));
+ var Gm = (chwytbutton(chwyt('Gm'),'Gm',80));
+ var Cm = (chwytbutton(chwyt('Cm'),'Cm',219));
+ var Gs = (chwytbutton(chwyt('G#'),'G#',76));
+ var As = (chwytbutton(chwyt('A#'),'A#',isFirefox ? 59 : 186));
+ var Ds = (chwytbutton(chwyt('D#'),'D#',222));
+ 
+ var rows = [];
+ rows[1] = [F7,G7,C7,D7,E7,A7,B7,Cs7,Fs7,Gs7,As7,Ds7];
+ rows[2] = [Dm,Em,Am,Bm,Csm,Fsm,Gsm,Asm,Dsm,Fm,Gm,Cm];
+ rows[3] = [F,G,C,D,E,A,B,Cs,Fs,Gs,As,Ds]; 
+
+ var fixedchords = document.createElement('div');
+ fixedchords.id = 'fixedchords';
+ var buttonwidth = 48;
+ var buttonmargin = 4;
+
+ for (var i=0; i<4; i++)
+ {
+  var block = document.createElement('div');
+  block.style.margin = '0';
+  block.style.padding = '0';
+  block.style.display = 'inline-block';
+  for (var y=1; y<=3; y++)
+  {
+   block.appendChild(rows[y][i*3]);
+   block.appendChild(rows[y][i*3+1]);
+   block.appendChild(rows[y][i*3+2]);
+   block.appendChild(document.createElement('br'));
+  }
+  fixedchords.appendChild(block);
+  if (i==1) fixedchords.appendChild(document.createElement('br'));
+ }
+ 
+ var buttons = fixedchords.getElementsByTagName("button");
+ var counter = 0;
+ for (var i=0; i<buttons.length; i++)
+ {
+  var button = buttons[i];
+  if (button.innerHTML != 'rename' && button.innerHTML != 'delete')
+  {
+   button.style.background = (counter<9 || counter>=27 ) ? '#777777' : '#555555';
+   button.style.width = buttonwidth+'px';
+   button.style.height = button.style.width
+   button.style.margin = buttonmargin+'px';
+   counter++;
+  }
+ }
+ applynoselect(fixedchords);
+ var table = document.createElement('table'); var tr = document.createElement('tr'); var td = document.createElement('td');
+ td.appendChild(fixedchords); tr.appendChild(td); table.appendChild(tr); table.style.borderCollapse = 'collapse';
+ table.style.margin = 'auto'; return table;
+}
+
+function stringbuttonpixelwidth() { return 56; }
+function autosizefretboard()
+{
+ function becramped()
+ {
+  gitara.style.display = 'none';
+  topmenu.style.display = 'none';
+  defaultchordsdiv.innerHTML = '';
+  mobilechwytsdiv.innerHTML = '';
+  mobilechwytsdiv.appendChild(mobilechwyts());
+ }
+ function benormal()
+ {
+  gitara.style.display = 'block';
+  topmenu.style.display = 'inline-block';
+  mobilechwytsdiv.innerHTML = '';
+  defaultchordsdiv.innerHTML = '';
+  defaultchordsdiv.appendChild(defaultchwyts());
+ }
+ //gitara.style.display = 'block';
+ var H = 6*strbut.clientHeight+24; // height of fretboard in pixels
+ var H = 6*18+24;
+ var W = document.body.clientWidth; // available width in pixels
+ var E = stringbuttonpixelwidth();
+ var a = Math.pow(2,1/12);
+ var guitarwidth = 12.5*H;
+ 
+ if (guitarwidth < W) // window too wide
+ {
+  benormal();
+  var fragment = 1;
+  var n = 20;
+  gitara.innerHTML = '';
+  gitara.style.width = guitarwidth / W * 100 + '%';
+  gitara.appendChild(horifretboard(n,fragment));
+  updatestringbuttons();
+  updatepiano();
+  klawisz40.focus(); klawisz40.blur();
+  return;
+ }
+ 
+ for (var n=20; n>=9; n--)
+ {
+  var fretboardwidth = (1-Math.pow(a,-n))*guitarwidth;
+  if (fretboardwidth + E <= W)
+  {
+   benormal();
+   var fragment = W / guitarwidth;
+   gitara.innerHTML = '';
+   gitara.style.width = '100%';
+   gitara.appendChild(horifretboard(n,fragment));
+   updatestringbuttons();
+   updatepiano();
+   klawisz40.focus(); klawisz40.blur();
+   return;
+  }
+ }
+ // too cramped - no resize
+ becramped();
+}
+
+function autosize()
+{
+ autosizefretboard(); // piano ratio 679/150
+ pianokeyboarddiv.style.width = gitara.clientHeight * 679/150 + 'px';
+ znika.style.display = gitara.style.display;
+}
+
+function autostrumbox()
+{
+ var box = document.createElement('input'); box.type = 'checkbox'; box.id = 'strumbox'; box.setAttribute('checked','checked');
+ var sp = document.createElement('span'); sp.style.whiteSpace = 'nowrap'; sp.style.marginLeft = '0.5em';
+ sp.innerHTML = 'buttons auto-strum'; sp.appendChild(box);
+ box.setAttribute('onchange','galog("autostrum",this.checked);');
+ return sp;
+}
+function buttons_should_strum() { return strumbox.checked; }
+
+function mutebox(string)
+{
+ var box = document.createElement('input'); box.type = 'checkbox'; box.id = 'mutebox'+string;
+ box.style.position = 'absolute'; box.style.right = '0'; box.setAttribute('checked','checked');
+ box.setAttribute('onchange','galog("mutestring",this.checked);');
+ return box;
+}
+function nonmuted(string) { return document.getElementById('mutebox'+string).checked; }
+function setmuteboxes(a)
+{
+ for (var i=0; i < 6; i++) document.getElementById('mutebox'+(i+1)).checked = a[i];
+}
+</script>
+
+<style>
+#gitara { display: none; }
+button { cursor: pointer; }
+body { font-family: "Times New Roman"; margin-bottom: 4em; }
+#naglowek { margin-bottom: 2px; font-family: Arial; }
+nav, header, h1, #topmenu { display: inline; }
+#topmenu { display: inline-block; }
+header h1 { margin:0; white-space: nowrap; font-size: 100%; }
+#naglowek button { margin-left: 4px; }
+#defaultchordsdiv, #pianokeyboarddiv { display: inline-block; }
+#reklamadiv { text-align: center; color: #555555; margin-bottom: 1em; }
+#cookies { font-family: Arial; margin-bottom: 1em; font-size: small; }
+#ad1 { box-shadow: 0 0 1em 0.5em #bbbbbb; height: 90px; overflow: hidden; }
+#loading
+{
+ position: absolute; z-index: 10; background: gold; color: black; font-weight: bold;
+ padding: 0.5em; border-radius: 0.5em;
+}
+main { font-family: Verdana; margin-top: 2em; }
+main h1 { font-family: "Times New Roman"; color: #444444; text-transform: capitalize; }
+main div { margin-left: 3em; margin-top: 1em; margin-bottom: 1em; }
+main ul { margin: 0; }
+main em { font-style: normal; }
+</style>
+</head>
+<body>
+<DIV id='naglowek'>
+<nav><a href="//www.apronus.com/">Home</a></nav>
+<header><h1>Virtual Guitar Online</h1></header>
+<div id='topmenu'></div>
+<script>
+topmenu.appendChild(strumbutton());
+topmenu.appendChild(invertbutton());
+topmenu.appendChild(keepchord());
+topmenu.appendChild(autostrumbox());
+</script>
+<div id='loading'>LOADING GUITAR SOUNDS. PLEASE WAIT...</div>
+</DIV>
+<div id='gitara'></div>
+<div id='reklamadiv'>
+<div id='cookies'>We use cookies to analyze traffic and to personalize ads for non-EU users.</div>
+<div id='ad1'>
+</div>
+</div>
+<script>
+insert_tag_horizontal(ad1);
+</script>
+<!-- click buttons or press keys to play basic guitar chords below -->
+<div id='mobilechwytsdiv'></div>
+<div id='defaultchordsdiv'></div>
+<div id='pianokeyboarddiv'></div>
+<div id='znika'>
+<div id='abovememorybuttons'></div>
+<div id='membuttons'></div>
+</div>
+
+<script>
+preloadguitarsounds();
+gitara.appendChild(horifretboard(20,1));
+defaultchordsdiv.appendChild(defaultchwyts());
+pianokeyboarddiv.appendChild(guitarpianokeyboard());
+abovememorybuttons.appendChild(pianocontrols());
+membuttons.appendChild(memorybuttonsdiv());
+autosize();
+document.body.onresize = autosize;
+
+updatepiano();
+klawisz36.disabled = true;
+klawisz37.disabled = true;
+klawisz38.disabled = true;
+klawisz39.disabled = true;
+klawisz36.style.opacity = '0.2';
+klawisz37.style.opacity = '0.2';
+klawisz38.style.opacity = '0.2';
+klawisz39.style.opacity = '0.2';
+savebutton.disabled = true;
+releaseallkeys();
+gajkeys();
+
+var style = document.createElement('style');
+style.innerHTML = 
+".whitekeybutton { opacity: 1; background: linear-gradient(lightgray,white);"
++" box-shadow: inset 1px 1px 6px 0px black, inset -1px -1px 6px 0px black, 1px 0px gray, -1px 0px gray; }"
++".whitekeybutton:hover { box-shadow: inset 1px 1px 6px 0px red, inset -1px -1px 6px 0px red, 1px 0px gray, -1px 0px gray; }"
++".blackkeybutton:hover { box-shadow: inset 1px 1px 6px 0px red, inset -1px -1px 6px 0px red, 1px 0px gray, -1px 0px gray; }"
++".fixedchord:focus, .chord:focus { box-shadow: inset 0px 0px 66px 66px orange; border: 2px solid orange; }";
+document.head.appendChild(style);
+
+var g_touch = false;
+function touchdetected()
+{
+ if (g_touch) return;
+ g_touch = true;
+ galog("Touch","touch-detected");
+}
+document.body.addEventListener("touchstart", touchdetected, false);
+
+</script>
+
+<main>
+<h2>Realistic acoustic guitar sound</h2>
+<div>
+<em>This virtual acoustic guitar simulator plays the sounds of a real acoustic guitar</em> 
+with each single note recorded individually in a professional studio.
+Use an amplifier with good loudspeakers for a real-life acoustic guitar sound.
+</div>
+<h2>Play single notes or chords</h2>
+<div>
+There are three ways to <strong>play single notes</strong>:
+<ul>
+<li>click on the <em>guitar fretboard</em> to immediately hear the associated guitar note even without strumming the string;
+<li>click on the piano keyboard &mdash; it will also <em>play acoustic guitar</em>;
+<li>click a string button to produce a single note according to how the <em>string is pressed on the fretboard</em>.
+</ul>
+</div>
+<div>
+There are five ways to <strong>play guitar chords</strong>:
+<ul>
+<li>click the buttons indicating all the 12 <em>major chords</em> (F,G,C,etc.), 
+all the 12 <em>minor chords</em> (Fm,Gm,Cm,etc.) and all the 12 <em>dominant seventh chords</em> (F7,G7,C7,etc.);
+<li>press computer keyboard keys to play these major, minor and dominant seventh chords (e.g. Caps Lock plays F major, Tab plays D minor);
+<li>click each string on the fretboard to set a chord and then either strum the strings with the mouse or click <i>STRUM</i> or press the spacebar;
+<li>once the fretboard is set for a chord click <i>keep chord</i> to create a custom-made chord button, which can be clicked or triggered with a user-defined computer keyboard key;  
+<li>click <i>keyboard chord</i> to indicate a chord on the piano keyboard and then click it once again to create a custom-made chord button.
+</ul>
+</div>
+<h2>Record and playback</h2>
+<div>
+You can <em>record anything played by this virtual guitar and play it back</em> at will.
+To start and stop recording check and uncheck the box <i>RECORD</i>. A playback button will appear automatically.
+You can have many playback buttons: each with its own recording. You can even play back more than one recording at the same time while making another recording to combine them.
+</div>
+<h2>Save your work</h2>
+<div>
+Your recordings and your custom chords are stored as buttons which can be dragged around to shift position.
+You can <i>save</i> all your buttons as a text file to your hard drive and then <i>load</i> this file later.
+Each button can be renamed and configured to be triggered by any key from the computer keyboard.
+You can program your computer keyboard so that each key plays a custom chord or a playback recording and then save the layout for later.
+The ready-made chord buttons can be dragged and dropped onto the area for user buttons to be further edited there.
+</div>
+</main>
+
+<script>
+var bodytag = document.getElementById('ad1').innerHTML;
+if (isAdSense()) console.log('AdSense');
+if (isPubMax()) console.log('PubMax');
+if (isPapayAds()) console.log('PapayaAds');
+console.log(bodytag);
+</script>
+
+<div id = "vdo_ai_div"></div><script>(function(v,d,o,ai){ai=d.createElement('script');ai.defer=true;ai.async=true;ai.src=v.location.protocol+o;d.head.appendChild(ai);})(window, document, '//a.vdo.ai/core/v-apronus-v2/vdo.ai.js');</script>
+
+</body>
+</html>
