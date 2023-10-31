@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Video Popups</title>
+  <style>
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      display: none;
+    }
+
+    .popup iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTube Video Popups</h1>
+
+  <div class="popup">
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>
+    <span class="close-button">X</span>
+  </div>
+
+  <a href="#" class="open-popup">Open YouTube Video</a>
+
+  <script>
+    // Get the current time when the user clicks the screen
+    const clickTime = new Date().getTime();
+
+    // Get the popup element
+    const popup = document.querySelector('.popup');
+
+    // Open the popup when the user clicks the open button
+    document.querySelector('.open-popup').addEventListener('click', () => {
+      popup.style.display = 'block';
+    });
+
+    // Close the popup when the user clicks the close button
+    popup.querySelector('.close-button').addEventListener('click', () => {
+      popup.style.display = 'none';
+    });
+
+    // Calculate the time elapsed since the user clicked the screen
+    const elapsedTime = new Date().getTime() - clickTime;
+
+    // Log the elapsed time to the console
+    console.log(`Elapsed time: ${elapsedTime}ms`);
+  </script>
+</body>
+</html>
