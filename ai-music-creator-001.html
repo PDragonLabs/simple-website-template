@@ -1,46 +1,78 @@
-<nav class="navbar">
-    <a href="#" class="navbar-brand">AI-Music-Composer</a>
-    <ul class="navbar-nav">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Features</a></li>
-        <li><a href="#">Pricing</a></li>
-        <li><a href="#">Contact</a></li>
-    </ul>
-</nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Music-Composer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">AI-Music-Composer</a>
+        <ul class="navbar-nav">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav>
 
+    <header class="hero">
+        <img src="hero-image.jpg" alt="Hero image">
+        <h2>Unleash Your Inner Music Composer</h2>
+        <p>AI-Music-Composer is a revolutionary AI-powered tool that empowers you to generate original music in various genres and styles. Whether you're a seasoned musician or a complete novice, create unique melodies, harmonies, and rhythms with ease.</p>
+        <a href="#" class="button">Get Started</a>
+    </header>
 
-<section class="features">
-    <h2>Features</h2>
-    <ul>
-        <li>
-            <i class="fa-solid fa-music"></i>
-            <h4>Genre Selection</h4>
-            <p>Choose from a wide range of musical genres, including pop, rock, jazz, electronic, and many more.</p>
-        </li>
-        <li>
-            <i class="fa-solid fa-clock"></i>
-            <h4>Length Controls</h4>
-            <p>Generate tracks tailored to your needs, ranging from short 30-second snippets to captivating 10-minute masterpieces.</p>
-        </li>
-        <li>
-            <i class="fa-solid fa-guitar"></i>
-            <h4>Instrument Options</h4>
-            <p>Select from a diverse array of instruments, including guitar, piano, drums, strings, and more, to bring your compositions to life.</p>
-        </li>
-        <li>
-            <i class="fa-solid fa-face-smile-wide"></i>
-            <h4>Mood Filters</h4>
-            <p>Set the mood of your music by selecting from a variety of emotional filters, such as happy, sad, energetic, mellow, and more.</p>
-        </li>
-        <li>
-            <i class="fa-solid fa-bars"></i>
-            <h4>Structure Control</h4>
-            <p>Craft your music with intention. Utilize the verse-chorus structure or opt for a free-form approach, letting your creativity flow.</p>
-        </li>
-        <li>
-            <i class="fa-solid fa-headphones"></i>
-            <h4>Stems Output</h4>
-            <p>Gain full control over your musical creation. AI-Music-Composer provides isolated tracks for vocals, drums, bass, and accompaniment, allowing you to fine-tune your mix and production.</p>
-        </li>
-    </ul>
-</section>
+    <main>
+        <section class="features">
+            <h2>Features</h2>
+            <ul>
+                <li>
+                    <i class="fa-solid fa-music"></i>
+                    <h4>Genre Selection</h4>
+                    <p>Choose from a wide range of musical genres, including pop, rock, jazz, electronic, and many more.</p>
+                </li>
+                <li>
+                    <i class="fa-solid fa-clock"></i>
+                    <h4>Length Controls</h4>
+                    <p>Generate tracks tailored to your needs, ranging from short 30-second snippets to captivating 10-minute masterpieces.</p>
+                </li>
+                <li>
+                    <i class="fa-solid fa-guitar"></i>
+                    <h4>Instrument Options</h4>
+                    <p>Select from a diverse array of instruments, including guitar, piano, drums, strings, and more, to bring your compositions to life.</p>
+                </li>
+                <li>
+                    <i class="fa-solid fa-face-smile-wide"></i>
+                    <h4>Mood Filters</h4>
+                    <p>Set the mood of your music by selecting from a variety of emotional filters, such as happy, sad, energetic, mellow, and more.</p>
+                </li>
+                <li>
+                    <i class="fa-solid fa-bars"></i>
+                    <h4>Structure Control</h4>
+                    <p>Craft your music with intention. Utilize the verse-chorus structure or opt for a free-form approach, letting your creativity flow.</p>
+                </li>
+                <li>
+                    <i class="fa-solid fa-headphones"></i>
+                    <h4>Stems Output</h4>
+                    <p>Gain full control over your musical creation. AI-Music-Composer provides isolated tracks for vocals, drums, bass, and accompaniment, allowing you to fine-tune your mix and production.</p>
+                </li>
+            </ul>
+        </section>
+
+        <section class="music-generation">
+            <h2>Generate Your Music</h2>
+            <form id="music-generation-form">
+                <label for="genre">Genre:</label>
+                <select id="genre">
+                    <option value="pop">Pop</option>
+                    <option value="rock">Rock</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="classical">Classical</option>
+                </select>
+
+                <label for="length">Length:</label>
+                <input type="number" id="length" min="30" max="600
