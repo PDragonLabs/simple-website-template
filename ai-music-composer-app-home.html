@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Music-Composer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>AI-Music-Composer</h1>
+        <p>Create original music in various genres and styles</p>
+    </header>
+
+    <main>
+        <section class="hero">
+            <img src="hero-image.jpg" alt="Hero image">
+            <h2>Unleash Your Inner Music Composer</h2>
+            <p>AI-Music-Composer is a revolutionary AI-powered tool that empowers you to generate original music in various genres and styles. Whether you're a seasoned musician or a complete novice, create unique melodies, harmonies, and rhythms with ease.</p>
+            <a href="#" class="button">Get Started</a>
+        </section>
+
+        <section class="music-generation">
+            <h2>Generate Your Music</h2>
+            <form id="music-generation-form">
+                <label for="genre">Genre:</label>
+                <select id="genre">
+                    <option value="pop">Pop</option>
+                    <option value="rock">Rock</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="classical">Classical</option>
+                </select>
+
+                <label for="length">Length:</label>
+                <input type="number" id="length" min="30" max="600">
+
+                <label for="instruments">Instruments:</label>
+                <select id="instruments" multiple>
+                    <option value="guitar">Guitar</option>
+                    <option value="piano">Piano</option>
+                    <option value="drums">Drums</option>
+                    <option value="strings">Strings</option>
+                </select>
+
+                <label for="mood">Mood:</label>
+                <select id="mood">
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="energetic">Energetic</option>
+                    <option value="mellow">Mellow</option>
+                </select>
+
+                <label for="structure">Structure:</label>
+                <select id="structure">
+                    <option value="verse-chorus">Verse-Chorus</option>
+                    <option value="free-form">Free-form</option>
+                </select>
+
+                <button type="submit">Generate Music</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 AI-Music-Composer</p>
+    </footer>
+</body>
+</html>
